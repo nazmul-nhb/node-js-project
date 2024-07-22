@@ -12,9 +12,13 @@ const app = {};
 //     console.error(error);
 // });
 
-DB.read('test', 'awami', (error, data) => {
-    data ? console.log(data) : console.error(error);
-})
+// DB.read('test', 'awami', (error, data) => {
+//     data ? console.log(data) : console.error(error);
+// });
+
+// DB.update('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing", "favorite": "india" }, (error) => {
+//     console.error(error);
+// });
 
 // create server
 app.createServer = () => {
