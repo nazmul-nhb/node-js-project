@@ -1,9 +1,8 @@
-const { handleSample } = require("../handlers/handleRoutes");
+const handlers = require("../handlers/handleRoutes");
 
-
+// route handlers 
 const routes = {
-    sample: handleSample,
-    about: handleSample
+    sample: handlers.handleSample,
 }
 
 module.exports = routes;

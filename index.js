@@ -1,8 +1,7 @@
 const http = require("http");
-const { handleReqRes } = require("./handlers/handleReqRes");
-const { port } = require("./environments/env");
+const handlers = require("./handlers/handleReqRes");
+const environmentToUse = require("./environments/env");
 const DB = require("./lib/DB");
-
 
 // module scaffolding
 const app = {};
@@ -27,9 +26,9 @@ const app = {};
 
 // create server
 app.createServer = () => {
-    const server = http.createServer(handleReqRes);
-    server.listen(port, () => {
-        console.log(`Listening to Port ${port}`);
+    const server = http.createServer(handlers.handleReqRes);
+    server.listen(environmentToUse.port, () => {
+        console.log(`Listening to Port: ${environmentToUse.port}`);
     })
 };
 

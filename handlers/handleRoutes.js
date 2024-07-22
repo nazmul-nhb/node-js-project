@@ -1,6 +1,6 @@
-const handlers = {};
+const routeHandlers = {};
 // handler for sample route
-handlers.handleSample = (requestProperties, callback) => {
+routeHandlers.handleSample = (requestProperties, callback) => {
     // console.log(requestProperties);
 
     callback(200, {
@@ -9,7 +9,7 @@ handlers.handleSample = (requestProperties, callback) => {
 };
 
 // handler 404 when route not found!
-handlers.handleNotFound = (requestProperties, callback) => {
+routeHandlers.handleNotFound = (requestProperties, callback) => {
     // console.log(requestProperties);
 
     callback(404, {
@@ -17,4 +17,4 @@ handlers.handleNotFound = (requestProperties, callback) => {
     });
 };
 
-module.exports = handlers;
+module.exports = routeHandlers;

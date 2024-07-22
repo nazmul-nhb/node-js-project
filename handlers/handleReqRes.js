@@ -1,7 +1,7 @@
 const url = require("url");
 const { StringDecoder } = require("string_decoder");
 const routes = require("../routes/routes");
-const { handleNotFound } = require("./handleRoutes");
+const routeHandlers = require("./handleRoutes");
 
 const handlers = {};
 // handle request & response
@@ -29,7 +29,7 @@ handlers.handleReqRes = (req, res) => {
     // console.log(headersObject);
 
     // request properties
-    const requestProperties = { path, parsedURL, method, queryStringObject, headersObject };
+    const requestProperties = { parsedURL, path, method, queryStringObject, headersObject };
 
     // create data decoder
     const decoder = new StringDecoder('utf-8');
@@ -38,7 +38,12 @@ handlers.handleReqRes = (req, res) => {
     let realData = '';
 
     // declare handler to choose correct route handler
-    const chosenHandler = routes[path] ? routes[path] : handleNotFound;
+    const chosenHandler = routes[path] ? routes[path] : routeHandlers.handleNotFound;
+
+    // process incoming data
+    req.on('data', (buffer) => {
+        realData += decoder.write(buffer);
+    });
 
     // handle request and request body
     req.on('end', () => {
@@ -55,18 +60,11 @@ handlers.handleReqRes = (req, res) => {
             const stringifiedPayload = JSON.stringify(processedPayload);
 
             // return the final response
+            res.setHeader('content-type', 'application/json')
             res.writeHead(processedStatusCode);
             res.end(stringifiedPayload);
-        })
-
-        // process incoming data
-        req.on('data', (buffer) => {
-            realData += decoder.write(buffer);
         });
-
-        // handle response
-        res.end("Hello World!");
-    })
-}
+    });
+};
 
 module.exports = handlers;
