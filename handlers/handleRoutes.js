@@ -79,7 +79,6 @@ routeHandlers.users.post = (requestProperties, callback) => {
             message: "You have a Problem in Your Request!"
         })
     }
-    callback(200, { message: "Success!" })
 };
 
 routeHandlers.users.get = (requestProperties, callback) => {
