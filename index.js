@@ -1,16 +1,22 @@
-import http from "http";
-import { handleReqRes } from "./handlers/handleReqRes.js";
-import environmentToUse from "./environments/env.js";
+const http = require("http");
+const { handleReqRes } = require("./handlers/handleReqRes");
+const { port } = require("./environments/env");
+const DB = require("./lib/DB");
 
 
 // module scaffolding
 const app = {};
 
+// testing file system
+DB.create('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing" }, (error) => {
+    console.error(error);
+})
+
 // create server
 app.createServer = () => {
     const server = http.createServer(handleReqRes);
-    server.listen(environmentToUse.port, () => {
-        console.log(`Listening to Port ${environmentToUse.port}`);
+    server.listen(port, () => {
+        console.log(`Listening to Port ${port}`);
     })
 };
 

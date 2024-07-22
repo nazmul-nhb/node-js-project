@@ -1,11 +1,11 @@
-import url from "url";
-import { StringDecoder } from "string_decoder";
-import routes from "../routes/routes.js";
-import { handleNotFound } from "./handleRoutes.js";
+const url = require("url");
+const { StringDecoder } = require("string_decoder");
+const routes = require("../routes/routes");
+const { handleNotFound } = require("./handleRoutes");
 
-
+const handlers = {};
 // handle request & response
-export const handleReqRes = (req, res) => {
+handlers.handleReqRes = (req, res) => {
     // request handling
 
     // get the url and parse it
@@ -68,3 +68,5 @@ export const handleReqRes = (req, res) => {
         res.end("Hello World!");
     })
 }
+
+module.exports = handlers;

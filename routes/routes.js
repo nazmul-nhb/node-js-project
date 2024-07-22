@@ -1,4 +1,4 @@
-import { handleSample } from "../handlers/handleRoutes.js";
+const { handleSample } = require("../handlers/handleRoutes");
 
 
 const routes = {
@@ -6,4 +6,4 @@ const routes = {
     about: handleSample
 }
 
-export default routes;
+module.exports = routes;
