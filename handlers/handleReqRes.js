@@ -37,30 +37,33 @@ export const handleReqRes = (req, res) => {
     // get body data or payload or whatsoever
     let realData = '';
 
+    // declare handler to choose correct route handler
     const chosenHandler = routes[path] ? routes[path] : handleNotFound;
 
-    chosenHandler(requestProperties, (statusCode, payload) => {
-        // process status code and payload
-        const processedStatusCode = typeof (statusCode) === 'number' ? statusCode : 500;
-        const processedPayload = typeof (payload) === 'object' ? payload : {};
-
-        // stringify the processed payload object
-        const stringifiedPayload = JSON.stringify(processedPayload);
-
-        // return the final response
-        res.writeHead(processedStatusCode);
-        res.end(stringifiedPayload);
-    })
-
-    // process incoming data
-    req.on('data', (buffer) => {
-        realData += decoder.write(buffer);
-    });
-
-    // 
+    // handle request and request body
     req.on('end', () => {
         realData += decoder.end();
-        console.log(realData);
+        // console.log(realData);
+
+        // choose correct handler to handle request and routes
+        chosenHandler(requestProperties, (statusCode, payload) => {
+            // process status code and payload
+            const processedStatusCode = typeof (statusCode) === 'number' ? statusCode : 500;
+            const processedPayload = typeof (payload) === 'object' ? payload : {};
+
+            // stringify the processed payload object
+            const stringifiedPayload = JSON.stringify(processedPayload);
+
+            // return the final response
+            res.writeHead(processedStatusCode);
+            res.end(stringifiedPayload);
+        })
+
+        // process incoming data
+        req.on('data', (buffer) => {
+            realData += decoder.write(buffer);
+        });
+
         // handle response
         res.end("Hello World!");
     })
