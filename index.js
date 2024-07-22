@@ -8,6 +8,7 @@ const DB = require("./lib/DB");
 const app = {};
 
 // testing file system
+
 // DB.create('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing" }, (error) => {
 //     console.error(error);
 // });
@@ -18,6 +19,10 @@ const app = {};
 
 // DB.update('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing", "favorite": "india" }, (error) => {
 //     console.error(error);
+// });
+
+// DB.delete('test', 'awami', (error) => {
+//     error ? console.error(error) : console.log('Delete Success!');
 // });
 
 // create server
