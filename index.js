@@ -8,8 +8,12 @@ const DB = require("./lib/DB");
 const app = {};
 
 // testing file system
-DB.create('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing" }, (error) => {
-    console.error(error);
+// DB.create('test', 'awami', { "name": "BAL", "type": "chutiya", "job": "killing" }, (error) => {
+//     console.error(error);
+// });
+
+DB.read('test', 'awami', (error, data) => {
+    data ? console.log(data) : console.error(error);
 })
 
 // create server
