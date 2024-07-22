@@ -1,5 +1,5 @@
 const DB = require("../lib/DB");
-const { validateData, hashString } = require("../utilities/utilities");
+const { validateData, hashString, parseJSON } = require("../utilities/utilities");
 
 const routeHandlers = {};
 
@@ -60,17 +60,19 @@ routeHandlers.users.post = (requestProperties, callback) => {
                 DB.create('users', phone, userInfo, (createError) => {
                     if (!createError) {
                         callback(200, {
+                            success: true,
                             message: "User Created Successfully!"
                         })
                     } else {
                         callback(500, {
+                            success: false,
                             message: "Could Not Create User!"
                         })
                     }
                 })
             } else {
-                callback(500, {
-                    message: "Internal Server Error!"
+                callback(409, {
+                    message: "User Exists with the Same Phone Number!"
                 });
             }
         })
@@ -82,7 +84,32 @@ routeHandlers.users.post = (requestProperties, callback) => {
 };
 
 routeHandlers.users.get = (requestProperties, callback) => {
-    callback(200, { message: "Hi there!" });
+    // callback(200, { message: "Hi there!" });
+    // check the phone number is valid
+    const phone = validateData(requestProperties.queryStringObject.phone, 10);
+
+    if (phone) {
+        DB.read("users", phone, (error, data) => {
+            if (!error && data) {
+                const user = { ...parseJSON(data) };
+                delete user.password;
+                callback(200, {
+                    success: true,
+                    user
+                })
+            } else {
+                callback(404, {
+                    success: false,
+                    message: "User Not Found! Try a Different Phone Number!"
+                })
+            }
+        })
+    } else {
+        callback(404, {
+            success: false,
+            message: "User Not Found! Try a Different Phone Number!"
+        })
+    }
 };
 
 routeHandlers.users.put = (requestProperties, callback) => {
