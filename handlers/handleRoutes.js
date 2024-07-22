@@ -1,10 +1,14 @@
+const DB = require("../lib/DB");
+const { validateData, hashString } = require("../utilities/utilities");
+
 const routeHandlers = {};
-// handler for sample route
-routeHandlers.handleSample = (requestProperties, callback) => {
+
+// handler for root route
+routeHandlers.handleRoot = (requestProperties, callback) => {
     // console.log(requestProperties);
 
     callback(200, {
-        message: 'This is Sample Route!'
+        message: 'Welcome to Simple Node.js Server!'
     });
 };
 
@@ -15,6 +19,79 @@ routeHandlers.handleNotFound = (requestProperties, callback) => {
     callback(404, {
         message: 'Not Found!'
     });
+};
+
+// handler for sample route
+routeHandlers.handleSample = (requestProperties, callback) => {
+    // console.log(requestProperties);
+
+    callback(200, {
+        message: 'This is Sample Route!'
+    });
+};
+
+// handler for sample route
+routeHandlers.handleUser = (requestProperties, callback) => {
+    const acceptedMethods = ['get', 'post', 'put', 'delete'];
+
+    if (acceptedMethods.includes(requestProperties.method)) {
+        routeHandlers.users[requestProperties.method](requestProperties, callback);
+    } else {
+        callback(405, {
+            message: 'Method is Not Allowed!'
+        });
+    }
+};
+
+routeHandlers.users = {};
+
+// create user
+routeHandlers.users.post = (requestProperties, callback) => {
+    const firstName = validateData(requestProperties.body.firstName, 0);
+    const lastName = validateData(requestProperties.body.lastName, 0);
+    const phone = validateData(requestProperties.body.phone, 10);
+    const password = validateData(requestProperties.body.password, 0);
+
+    if (firstName && lastName && phone && password) {
+        // make sure that the user does not already exist
+        DB.read('users', phone, (readError) => {
+            if (readError) {
+                const userInfo = { firstName, lastName, phone, password: hashString(password) }
+                DB.create('users', phone, userInfo, (createError) => {
+                    if (!createError) {
+                        callback(200, {
+                            message: "User Created Successfully!"
+                        })
+                    } else {
+                        callback(500, {
+                            message: "Could Not Create User!"
+                        })
+                    }
+                })
+            } else {
+                callback(500, {
+                    message: "Internal Server Error!"
+                });
+            }
+        })
+    } else {
+        callback(400, {
+            message: "You have a Problem in Your Request!"
+        })
+    }
+    callback(200, { message: "Success!" })
+};
+
+routeHandlers.users.get = (requestProperties, callback) => {
+    callback(200, { message: "Hi there!" });
+};
+
+routeHandlers.users.put = (requestProperties, callback) => {
+
+};
+
+routeHandlers.users.delete = (requestProperties, callback) => {
+
 };
 
 module.exports = routeHandlers;

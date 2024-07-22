@@ -2,6 +2,7 @@ const url = require("url");
 const { StringDecoder } = require("string_decoder");
 const routes = require("../routes/routes");
 const routeHandlers = require("./handleRoutes");
+const { parseJSON } = require("../utilities/utilities");
 
 const handlers = {};
 // handle request & response
@@ -50,6 +51,8 @@ handlers.handleReqRes = (req, res) => {
         realData += decoder.end();
         // console.log(realData);
 
+        requestProperties.body = parseJSON(realData);
+
         // choose correct handler to handle request and routes
         chosenHandler(requestProperties, (statusCode, payload) => {
             // process status code and payload
@@ -60,7 +63,7 @@ handlers.handleReqRes = (req, res) => {
             const stringifiedPayload = JSON.stringify(processedPayload);
 
             // return the final response
-            res.setHeader('content-type', 'application/json')
+            res.setHeader('Content-Type', 'application/json');
             res.writeHead(processedStatusCode);
             res.end(stringifiedPayload);
         });
