@@ -62,24 +62,26 @@ routeHandlers.users.post = (requestProperties, callback) => {
                         callback(200, {
                             success: true,
                             message: "User Created Successfully!"
-                        })
+                        });
                     } else {
                         callback(500, {
                             success: false,
                             message: "Could Not Create User!"
-                        })
+                        });
                     }
-                })
+                });
             } else {
                 callback(409, {
+                    success: false,
                     message: "User Exists with the Same Phone Number!"
                 });
             }
         })
     } else {
         callback(400, {
+            success: false,
             message: "You have a Problem in Your Request!"
-        })
+        });
     }
 };
 
@@ -101,19 +103,72 @@ routeHandlers.users.get = (requestProperties, callback) => {
                 callback(404, {
                     success: false,
                     message: "User Not Found! Try a Different Phone Number!"
-                })
+                });
             }
-        })
+        });
     } else {
         callback(404, {
             success: false,
             message: "User Not Found! Try a Different Phone Number!"
-        })
+        });
     }
 };
 
 routeHandlers.users.put = (requestProperties, callback) => {
+    const phone = validateData(requestProperties.body.phone, 10);
+    const firstName = validateData(requestProperties.body.firstName, 0);
+    const lastName = validateData(requestProperties.body.lastName, 0);
+    const password = validateData(requestProperties.body.password, 0);
 
+    if (phone) {
+        if (firstName || lastName || password) {
+            // lookup user in the db
+            DB.read("users", phone, (readError, data) => {
+                if (!readError && data) {
+                    const userData = { ...parseJSON(data) };
+                    if (firstName) {
+                        userData.firstName = firstName;
+                    }
+                    if (lastName) {
+                        userData.lastName = lastName;
+                    }
+                    if (password) {
+                        userData.password = hashString(password);
+                    }
+                    
+                    // update in db
+                    DB.update("users", phone, userData, (updateError) => {
+                        if (!updateError) {
+                            callback(200, {
+                                success: true,
+                                message: "User Updated Successfully!"
+                            });
+                        } else {
+                            callback(500, {
+                                success: false,
+                                message: "Could Not Update User!"
+                            });
+                        }
+                    })
+                } else {
+                    callback(404, {
+                        success: false,
+                        message: "User Not Found! Try a Different Phone Number!"
+                    });
+                }
+            })
+        } else {
+            callback(400, {
+                success: false,
+                message: "You have a Problem in Your Request!"
+            });
+        }
+    } else {
+        callback(404, {
+            success: false,
+            message: "User Not Found! Try a Different Phone Number!"
+        });
+    }
 };
 
 routeHandlers.users.delete = (requestProperties, callback) => {
