@@ -76,7 +76,7 @@ routeHandlers.users.post = (requestProperties, callback) => {
                     message: "User Exists with the Same Phone Number!"
                 });
             }
-        })
+        });
     } else {
         callback(400, {
             success: false,
@@ -85,6 +85,7 @@ routeHandlers.users.post = (requestProperties, callback) => {
     }
 };
 
+// TODO: Authenticate User Before Getting User Info
 routeHandlers.users.get = (requestProperties, callback) => {
     // callback(200, { message: "Hi there!" });
     // check the phone number is valid
@@ -98,11 +99,11 @@ routeHandlers.users.get = (requestProperties, callback) => {
                 callback(200, {
                     success: true,
                     user
-                })
+                });
             } else {
-                callback(404, {
+                callback(500, {
                     success: false,
-                    message: "User Not Found! Try a Different Phone Number!"
+                    message: "Internal Server Error!"
                 });
             }
         });
@@ -114,6 +115,7 @@ routeHandlers.users.get = (requestProperties, callback) => {
     }
 };
 
+// TODO: Authenticate User Before Updating
 routeHandlers.users.put = (requestProperties, callback) => {
     const phone = validateData(requestProperties.body.phone, 10);
     const firstName = validateData(requestProperties.body.firstName, 0);
@@ -135,7 +137,7 @@ routeHandlers.users.put = (requestProperties, callback) => {
                     if (password) {
                         userData.password = hashString(password);
                     }
-                    
+
                     // update in db
                     DB.update("users", phone, userData, (updateError) => {
                         if (!updateError) {
@@ -149,7 +151,7 @@ routeHandlers.users.put = (requestProperties, callback) => {
                                 message: "Could Not Update User!"
                             });
                         }
-                    })
+                    });
                 } else {
                     callback(404, {
                         success: false,
@@ -171,8 +173,40 @@ routeHandlers.users.put = (requestProperties, callback) => {
     }
 };
 
+// TODO: Authenticate User Before Deleting
 routeHandlers.users.delete = (requestProperties, callback) => {
+    // check the phone number is valid
+    const phone = validateData(requestProperties.queryStringObject.phone, 10);
 
+    if (phone) {
+        DB.read("users", phone, (readError, data) => {
+            if (!readError && data) {
+                DB.delete("users", phone, (deleteError) => {
+                    if (!deleteError) {
+                        callback(200, {
+                            success: true,
+                            message: "User Deleted Successfully!"
+                        });
+                    } else {
+                        callback(500, {
+                            success: false,
+                            message: "Could Not Delete User!"
+                        });
+                    }
+                })
+            } else {
+                callback(404, {
+                    success: false,
+                    message: "User Not Found! Try with a Different Phone Number!"
+                });
+            }
+        });
+    } else {
+        callback(404, {
+            success: false,
+            message: "User Not Found! Try with a Different Phone Number!"
+        });
+    }
 };
 
 module.exports = routeHandlers;
