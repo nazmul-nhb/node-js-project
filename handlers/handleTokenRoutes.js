@@ -60,7 +60,6 @@ routeHandlers.token.post = (requestProperties, callback) => {
     }
 };
 
-
 routeHandlers.token.get = (requestProperties, callback) => {
     // check the token id is valid
     const tokenID = validateData(requestProperties.queryStringObject.token, 37);
@@ -84,7 +83,6 @@ routeHandlers.token.get = (requestProperties, callback) => {
         });
     }
 };
-
 
 routeHandlers.token.put = (requestProperties, callback) => {
     // check the token id is valid
@@ -125,9 +123,40 @@ routeHandlers.token.put = (requestProperties, callback) => {
     }
 };
 
-
 routeHandlers.token.delete = (requestProperties, callback) => {
+    // check the token is valid
+    const tokenID = validateData(requestProperties.queryStringObject.token, 37);
 
+    if (tokenID) {
+        DB.read("tokens", tokenID, (readError, data) => {
+            if (!readError && data) {
+                DB.delete("tokens", tokenID, (deleteError) => {
+                    if (!deleteError) {
+                        callback(200, {
+                            success: true,
+                            message: "Token Deleted Successfully!"
+                        });
+                    } else {
+                        callback(500, {
+                            success: false,
+                            message: "Could Not Delete Token!",
+                            error: deleteError
+                        });
+                    }
+                })
+            } else {
+                callback(404, {
+                    success: false,
+                    message: "Token Not Found!"
+                });
+            }
+        });
+    } else {
+        callback(404, {
+            success: false,
+            message: "User Not Found! Try with a Different Phone Number!"
+        });
+    }
 };
 
 module.exports = routeHandlers;
