@@ -159,4 +159,18 @@ routeHandlers.token.delete = (requestProperties, callback) => {
     }
 };
 
+routeHandlers.token.verifyToken = (tokenID, phone, callback) => {
+    DB.read("tokens", tokenID, (readError, tokenData) => {
+        if (!readError && tokenData) {
+            if (parseJSON(tokenData).phone === phone && parseJSON(tokenData).expires > Date.now()) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        } else {
+            callback(false);
+        }
+    })
+}
+
 module.exports = routeHandlers;

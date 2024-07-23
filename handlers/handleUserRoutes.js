@@ -1,5 +1,6 @@
 const DB = require("../lib/DB");
 const { validateData, hashString, parseJSON } = require("../utilities/utilities");
+const { token } = require("./handleTokenRoutes");
 
 const routeHandlers = {};
 
@@ -85,21 +86,32 @@ routeHandlers.users.post = (requestProperties, callback) => {
     }
 };
 
-// TODO: Authenticate User Before Getting User Info
 routeHandlers.users.get = (requestProperties, callback) => {
     // check the phone number is valid
     const phone = validateData(requestProperties.queryStringObject.phone, 10);
 
     if (phone) {
-        DB.read("users", phone, (error, data) => {
-            if (!error && data) {
-                const user = { ...parseJSON(data) };
-                delete user.password;
-                callback(200, { success: true, user });
+        // verify token
+        let incomingToken = validateData(requestProperties.headersObject.token, 37);
+
+        token.verifyToken(incomingToken, phone, (isValid) => {
+            if (isValid) {
+                DB.read("users", phone, (error, data) => {
+                    if (!error && data) {
+                        const user = { ...parseJSON(data) };
+                        delete user.password;
+                        callback(200, { success: true, user });
+                    } else {
+                        callback(500, {
+                            success: false,
+                            message: "Internal Server Error!"
+                        });
+                    }
+                });
             } else {
-                callback(500, {
+                callback(403, {
                     success: false,
-                    message: "Internal Server Error!"
+                    message: "Forbidden Access!"
                 });
             }
         });
@@ -111,7 +123,6 @@ routeHandlers.users.get = (requestProperties, callback) => {
     }
 };
 
-// TODO: Authenticate User Before Updating
 routeHandlers.users.put = (requestProperties, callback) => {
     const phone = validateData(requestProperties.body.phone, 10);
     const firstName = validateData(requestProperties.body.firstName, 0);
@@ -120,41 +131,53 @@ routeHandlers.users.put = (requestProperties, callback) => {
 
     if (phone) {
         if (firstName || lastName || password) {
-            // lookup user in the db
-            DB.read("users", phone, (readError, data) => {
-                if (!readError && data) {
-                    const userData = { ...parseJSON(data) };
-                    if (firstName) {
-                        userData.firstName = firstName;
-                    }
-                    if (lastName) {
-                        userData.lastName = lastName;
-                    }
-                    if (password) {
-                        userData.password = hashString(password);
-                    }
+            // verify token
+            let incomingToken = validateData(requestProperties.headersObject.token, 37);
 
-                    // update in db
-                    DB.update("users", phone, userData, (updateError) => {
-                        if (!updateError) {
-                            callback(200, {
-                                success: true,
-                                message: "User Updated Successfully!"
+            token.verifyToken(incomingToken, phone, (isValid) => {
+                if (isValid) {
+                    // lookup user in the db
+                    DB.read("users", phone, (readError, data) => {
+                        if (!readError && data) {
+                            const userData = { ...parseJSON(data) };
+                            if (firstName) {
+                                userData.firstName = firstName;
+                            }
+                            if (lastName) {
+                                userData.lastName = lastName;
+                            }
+                            if (password) {
+                                userData.password = hashString(password);
+                            }
+
+                            // update in db
+                            DB.update("users", phone, userData, (updateError) => {
+                                if (!updateError) {
+                                    callback(200, {
+                                        success: true,
+                                        message: "User Updated Successfully!"
+                                    });
+                                } else {
+                                    callback(500, {
+                                        success: false,
+                                        message: "Could Not Update User!"
+                                    });
+                                }
                             });
                         } else {
-                            callback(500, {
+                            callback(404, {
                                 success: false,
-                                message: "Could Not Update User!"
+                                message: "User Not Found! Try a Different Phone Number!"
                             });
                         }
                     });
                 } else {
-                    callback(404, {
+                    callback(403, {
                         success: false,
-                        message: "User Not Found! Try a Different Phone Number!"
+                        message: "Forbidden Access!"
                     });
                 }
-            })
+            });
         } else {
             callback(400, {
                 success: false,
