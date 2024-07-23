@@ -30,7 +30,7 @@ routeHandlers.handleSample = (requestProperties, callback) => {
     });
 };
 
-// handler for sample route
+// handler for user routes
 routeHandlers.handleUser = (requestProperties, callback) => {
     const acceptedMethods = ['get', 'post', 'put', 'delete'];
 
@@ -87,7 +87,6 @@ routeHandlers.users.post = (requestProperties, callback) => {
 
 // TODO: Authenticate User Before Getting User Info
 routeHandlers.users.get = (requestProperties, callback) => {
-    // callback(200, { message: "Hi there!" });
     // check the phone number is valid
     const phone = validateData(requestProperties.queryStringObject.phone, 10);
 
@@ -96,10 +95,7 @@ routeHandlers.users.get = (requestProperties, callback) => {
             if (!error && data) {
                 const user = { ...parseJSON(data) };
                 delete user.password;
-                callback(200, {
-                    success: true,
-                    user
-                });
+                callback(200, { success: true, user });
             } else {
                 callback(500, {
                     success: false,

@@ -1,10 +1,12 @@
-const routeHandlers = require("../handlers/handleUserRoutes");
+const { handleToken } = require("../handlers/handleTokenRoutes");
+const { handleRoot, handleSample, handleUser } = require("../handlers/handleUserRoutes");
 
 // route handlers 
 const routes = {
-    "": routeHandlers.handleRoot,
-    sample: routeHandlers.handleSample,
-    user: routeHandlers.handleUser,
-}
+    "": handleRoot,
+    sample: handleSample,
+    user: handleUser,
+    token: handleToken,
+};
 
 module.exports = routes;
