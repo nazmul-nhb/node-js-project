@@ -1,10 +1,10 @@
-const handlers = require("../handlers/handleRoutes");
+const routeHandlers = require("../handlers/handleUserRoutes");
 
 // route handlers 
 const routes = {
-    "": handlers.handleRoot,
-    sample: handlers.handleSample,
-    user: handlers.handleUser,
+    "": routeHandlers.handleRoot,
+    sample: routeHandlers.handleSample,
+    user: routeHandlers.handleUser,
 }
 
 module.exports = routes;

@@ -1,7 +1,7 @@
 const url = require("url");
 const { StringDecoder } = require("string_decoder");
 const routes = require("../routes/routes");
-const routeHandlers = require("./handleRoutes");
+const routeHandlers = require("./handleUserRoutes");
 const { parseJSON } = require("../utilities/utilities");
 
 const handlers = {};
