@@ -87,7 +87,42 @@ routeHandlers.token.get = (requestProperties, callback) => {
 
 
 routeHandlers.token.put = (requestProperties, callback) => {
+    // check the token id is valid
+    const tokenID = validateData(requestProperties.body.id, 37);
+    const extend = typeof (requestProperties.body.extend) === 'boolean' && requestProperties.body.extend === true ? true : false;
 
+    if (tokenID && extend) {
+        DB.read("tokens", tokenID, (readError, tokenData) => {
+            const tokenObject = parseJSON(tokenData);
+            if (tokenObject.expires > Date.now()) {
+                tokenObject.expires = Date.now() + 60 * 60 * 1000;
+                // store updated token in db
+                DB.update("tokens", tokenID, tokenObject, (updateError) => {
+                    if (!updateError) {
+                        callback(200, {
+                            success: true,
+                            message: "Token Updated! 1 Hour of Validity Extended!"
+                        });
+                    } else {
+                        callback(500, {
+                            success: false,
+                            message: "Internal Server Error!"
+                        });
+                    }
+                })
+            } else {
+                callback(400, {
+                    success: false,
+                    message: "Token Already Expired!"
+                });
+            }
+        })
+    } else {
+        callback(400, {
+            success: false,
+            message: "You have a Problem in Your Request!"
+        });
+    }
 };
 
 
