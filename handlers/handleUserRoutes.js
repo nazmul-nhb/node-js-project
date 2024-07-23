@@ -192,31 +192,42 @@ routeHandlers.users.put = (requestProperties, callback) => {
     }
 };
 
-// TODO: Authenticate User Before Deleting
 routeHandlers.users.delete = (requestProperties, callback) => {
     // check the phone number is valid
     const phone = validateData(requestProperties.queryStringObject.phone, 10);
 
     if (phone) {
-        DB.read("users", phone, (readError, data) => {
-            if (!readError && data) {
-                DB.delete("users", phone, (deleteError) => {
-                    if (!deleteError) {
-                        callback(200, {
-                            success: true,
-                            message: "User Deleted Successfully!"
-                        });
+        // verify token
+        let incomingToken = validateData(requestProperties.headersObject.token, 37);
+
+        token.verifyToken(incomingToken, phone, (isValid) => {
+            if (isValid) {
+                DB.read("users", phone, (readError, data) => {
+                    if (!readError && data) {
+                        DB.delete("users", phone, (deleteError) => {
+                            if (!deleteError) {
+                                callback(200, {
+                                    success: true,
+                                    message: "User Deleted Successfully!"
+                                });
+                            } else {
+                                callback(500, {
+                                    success: false,
+                                    message: "Could Not Delete User!"
+                                });
+                            }
+                        })
                     } else {
-                        callback(500, {
+                        callback(404, {
                             success: false,
-                            message: "Could Not Delete User!"
+                            message: "User Not Found! Try with a Different Phone Number!"
                         });
                     }
-                })
+                });
             } else {
-                callback(404, {
+                callback(403, {
                     success: false,
-                    message: "User Not Found! Try with a Different Phone Number!"
+                    message: "Forbidden Access!"
                 });
             }
         });
