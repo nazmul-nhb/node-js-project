@@ -29,10 +29,10 @@ app.createServer = () => {
     const server = http.createServer(handlers.handleReqRes);
     server.listen(environmentToUse.port, () => {
         console.log(`Listening to Port: ${environmentToUse.port}`);
-    })
+    });
 };
 
-
+// TODO: Start Watching from Video #12 (Part 5)
 
 // start the server
 app.createServer();
